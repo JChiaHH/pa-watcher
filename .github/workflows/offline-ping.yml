@@ -1,5 +1,5 @@
 name: offline-ping
-# Every 30 min (GitHub may start it late under load). ~1 billed minute per run = ~1,440 of the 2,000 free
+# Every 30 min (GitHub may start it late under load). Pings the owner; tells the sender it's offline. ~1 billed minute per run = ~1,440 of the 2,000 free
 # minutes a month for a private repo. Run it by hand: Actions -> offline-ping -> Run workflow.
 on:
   schedule:
