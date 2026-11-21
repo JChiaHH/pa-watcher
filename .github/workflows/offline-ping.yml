@@ -1,9 +1,10 @@
 name: offline-ping
-# Every 30 min (GitHub may start it late under load). Pings the owner; tells the sender it's offline. ~1 billed minute per run = ~1,440 of the 2,000 free
-# minutes a month for a private repo. Run it by hand: Actions -> offline-ping -> Run workflow.
+# Every 5 min (GitHub's minimum; it may start late under load). Public repo = free, unlimited Actions minutes.
+# Pings the owner; tells the sender it's offline. Run it by hand: Actions -> offline-ping -> Run workflow.
+# Logs are public: the script prints only "ok: ..." (no names, counts or ids).
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "2-59/5 * * * *"  # off the hour mark, when GitHub is busiest
   workflow_dispatch:
 permissions:
   contents: read

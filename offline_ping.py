@@ -96,12 +96,13 @@ def main() -> int:
     st = load_state()
     r = api(token, "getUpdates", {"timeout": 0, "limit": 100})  # no offset: nothing gets confirmed/removed
     if not r.get("ok"):
-        print("laptop is polling (409): it's on" if r.get("error_code") == 409 else f"getUpdates failed: {r}")
+        # the repo is public, so are these logs: say as little as possible (no names, counts or ids)
+        print("ok: laptop is on" if r.get("error_code") == 409 else f"getUpdates failed (HTTP {r.get('error_code')})")
         return 0
     now = time.time()
     items = waiting(r.get("result", []), owner, now, st["last"])
     if not items:
-        print(f"nothing new waiting ({len(r.get('result', []))} queued)")
+        print("ok: nothing waiting")
         return 0
     s = api(token, "sendMessage", {"chat_id": owner, "text": text_for(items)})
     if not s.get("ok"):
@@ -117,7 +118,7 @@ def main() -> int:
     st["last"] = max(it["id"] for it in items)
     st["told"] = {k: v for k, v in st["told"].items() if now - v < 7 * 86400}
     save_state(st)
-    print(f"pinged the owner about {len(items)} waiting message(s); told {told} sender(s) it's offline")
+    print("ok: notified")
     return 0
 
 
