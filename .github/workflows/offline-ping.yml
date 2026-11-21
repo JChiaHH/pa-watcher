@@ -1,0 +1,35 @@
+name: offline-ping
+# Every 30 min (GitHub may start it late under load). ~1 billed minute per run = ~1,440 of the 2,000 free
+# minutes a month for a private repo. Run it by hand: Actions -> offline-ping -> Run workflow.
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: offline-ping
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore what was already reported
+        uses: actions/cache/restore@v4
+        with:
+          path: state
+          key: reported-${{ github.run_id }}
+          restore-keys: reported-
+      - name: Check for messages waiting while the laptop is off
+        id: check
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_OWNER_ID: ${{ secrets.TELEGRAM_OWNER_ID }}
+        run: python3 offline_ping.py
+      - name: Remember it
+        if: steps.check.outputs.changed == '1'
+        uses: actions/cache/save@v4
+        with:
+          path: state
+          key: reported-${{ github.run_id }}
